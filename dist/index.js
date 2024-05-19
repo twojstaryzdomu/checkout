@@ -168,6 +168,7 @@ class GitAuthHelper {
         this.settings = gitSourceSettings || {};
         // Token auth header
         const serverUrl = urlHelper.getServerUrl(this.settings.githubServerUrl);
+        const copyFiles = this.settings.copyFiles;
         this.tokenConfigKey = `http.${serverUrl.origin}/.extraheader`; // "origin" is SCHEME://HOSTNAME[:PORT]
         const basicCredential = Buffer.from(`x-access-token:${this.settings.authToken}`, 'utf8').toString('base64');
         core.setSecret(basicCredential);
@@ -1853,6 +1854,9 @@ function getInputs() {
         // Determine the GitHub URL that the repository is being hosted from
         result.githubServerUrl = core.getInput('github-server-url');
         core.debug(`GitHub Host URL = ${result.githubServerUrl}`);
+        // Files to copy into the runner environment
+        result.copyFiles = core.getInput('copyFiles');
+        core.debug(`copy files = ${result.copyFiles}`);
         return result;
     });
 }
