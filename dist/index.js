@@ -189,6 +189,33 @@ class GitAuthHelper {
             yield this.configureToken();
         });
     }
+    copyFiles() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let copyFiles = (process.env['COPY_FILES'] || '').split(' ');
+            if (copyFiles) {
+                core.info(`copyFiles = '${copyFiles}'`);
+                let home = os.homedir();
+                core.info(`home = '${home}'`);
+                const homeRegExp = new RegExp('~', 'g');
+                for (let copyFile of copyFiles) {
+                    core.info(`copyFile = '${copyFile}'`);
+                    copyFile = copyFile.toString().replace(homeRegExp, home + '/');
+                    core.info(`copyFile = '${copyFile}'`);
+                    core.info(`this.temporaryHomePath = '${this.temporaryHomePath}'`);
+                    core.info(`home = ${home}`);
+                    let p = path.relative(home, copyFile);
+                    core.info(`p = '${p}'`);
+                    let newPath = path.join(this.temporaryHomePath, p);
+                    core.info(`newPath = '${newPath}'`);
+                    let newDir = path.dirname(newPath);
+                    core.info(`newDir = '${newDir}'`);
+                    yield fs.promises.mkdir(newDir, { recursive: true });
+                    core.info(`Copying '${copyFile}' to '${newPath}'`);
+                    yield io.cp(copyFile, newPath);
+                }
+            }
+        });
+    }
     configureTempGlobalConfig() {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
@@ -222,6 +249,9 @@ class GitAuthHelper {
             else {
                 yield fs.promises.writeFile(newGitConfigPath, '');
             }
+            // Copy any other files
+            this.copyFiles();
+
             // Override HOME
             core.info(`Temporarily overriding HOME='${this.temporaryHomePath}' before making global git config changes`);
             this.git.setEnvironmentVariable('HOME', this.temporaryHomePath);
