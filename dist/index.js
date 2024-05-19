@@ -6283,7 +6283,7 @@ function cp(source, dest, options = {}) {
             ? path.join(dest, path.basename(source))
             : dest;
         if (!(yield ioUtil.exists(source))) {
-            throw new Error(`no such file or directory: ${source}`);
+            throw new Error(`no such file or directory: '${source}'`);
         }
         const sourceStat = yield ioUtil.stat(source);
         if (sourceStat.isDirectory()) {
